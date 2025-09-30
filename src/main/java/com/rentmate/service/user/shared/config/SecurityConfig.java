@@ -1,0 +1,60 @@
+package com.rentmate.service.user.shared.config;
+
+import com.rentmate.service.user.shared.security.CustomAuthenticationEntryPoint;
+import com.rentmate.service.user.shared.security.EmailPasswordAuthenticationProvider;
+import com.rentmate.service.user.shared.filter.JwtAuthFilter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+public class SecurityConfig {
+    private final JwtAuthFilter jwtAuthFilter;
+
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+        this.jwtAuthFilter = jwtAuthFilter;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint entryPoint) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/users/auth/login",
+                                "/users/auth/refresh",
+                                "/users/auth/register",
+                                "/users/auth/password-reset/token",
+                                "/users/auth/password-reset/confirm",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**").permitAll() // login is public
+                        .requestMatchers("/users/auth/logout").authenticated()
+//                        .requestMatchers("/admin").hasRole("ADMIN")
+//                        .requestMatchers("/user").hasRole("USER")
+                           //     .anyRequest().permitAll()
+                        //.anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex ->
+                        ex.authenticationEntryPoint(entryPoint)
+                );
+
+        return http.build();
+    }
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(EmailPasswordAuthenticationProvider provider) throws Exception {
+        return new ProviderManager(provider);
+    }
+}
