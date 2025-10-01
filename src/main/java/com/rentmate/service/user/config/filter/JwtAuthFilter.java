@@ -1,6 +1,6 @@
-package com.rentmate.service.user.shared.filter;
+package com.rentmate.service.user.config.filter;
 
-import com.rentmate.service.user.shared.util.JwtUtils;
+import com.rentmate.service.user.service.shared.util.JwtUtils;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,8 +43,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             } catch (Exception e) {
                 System.out.println("Invalid token: " + e.getMessage());
-//                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-//                return;
             }
         }
         filterChain.doFilter(request, response);

@@ -27,7 +27,7 @@ spring:
 
 jwt:
   secret-key: eriojjgrieojq8386**pwdelow0-jtri9jebt8-blyk9ewrh887ghtrteythrt
-  expiration-time-minutes: 5
+  expiration-time-minutes: 1000
 
 user:
   session:

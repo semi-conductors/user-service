@@ -12,10 +12,10 @@ import org.springframework.format.annotation.NumberFormat;
 @Data
 public class RegisterRequest {
     @NotNull(message = "First name is required")
-    @Length(max = 100, message = "First name must be less than 100 characters")
+    @Length(max = 100,min = 3, message = "First name must be between 3 and 100 characters")
     private String firstName;
     @NotNull(message = "Last name is required")
-    @Length(max = 100, message = "Last name must be less than 100 characters")
+    @Length(max = 100, min=3, message = "Last name must be between 3 and 100 characters")
     private String lastName;
     @Email(message = "Invalid email address")
     private String email;

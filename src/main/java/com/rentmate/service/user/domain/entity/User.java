@@ -53,7 +53,7 @@ public class User {
     private BigDecimal averageRating = BigDecimal.ZERO;
 
     @Column(name = "total_ratings", nullable = false)
-    private Integer totalRating;
+    private Integer totalRating = 0;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

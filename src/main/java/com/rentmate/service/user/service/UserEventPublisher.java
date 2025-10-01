@@ -1,9 +1,10 @@
 package com.rentmate.service.user.service;
 
-import com.rentmate.service.user.domain.dto.event.PasswordResetRequestedEvent;
-import com.rentmate.service.user.domain.dto.event.UserRegisteredEvent;
+import com.rentmate.service.user.domain.dto.event.*;
+
 
 public interface UserEventPublisher {
     void publishUserRegistered(UserRegisteredEvent event);
     void publishPasswordResetRequestedEvent(PasswordResetRequestedEvent event);
+    void publishProfileDisabledEvent(ProfileDisabledEvent event);
 }

@@ -1,4 +1,4 @@
-package com.rentmate.service.user.shared.exception;
+package com.rentmate.service.user.service.shared.exception;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) {

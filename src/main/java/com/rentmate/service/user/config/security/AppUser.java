@@ -1,4 +1,4 @@
-package com.rentmate.service.user.shared.security;
+package com.rentmate.service.user.config.security;
 
 import com.rentmate.service.user.domain.entity.User;
 import org.springframework.security.core.GrantedAuthority;

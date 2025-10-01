@@ -1,5 +1,7 @@
 package com.rentmate.service.user.domain.dto.auth;
 
-public record LoginResponse(ApplicationUser user, String accessToken, String refreshToken) {
+import com.rentmate.service.user.domain.dto.user.UserProfileResponse;
+
+public record LoginResponse(UserProfileResponse user, String accessToken, String refreshToken) {
 
 }

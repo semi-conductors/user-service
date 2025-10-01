@@ -1,6 +1,7 @@
 package com.rentmate.service.user.service.implementation;
 
-import com.rentmate.service.user.shared.config.RabbitMQConfig;
+import com.rentmate.service.user.domain.dto.event.ProfileDisabledEvent;
+import com.rentmate.service.user.config.RabbitMQConfig;
 import com.rentmate.service.user.domain.dto.event.PasswordResetRequestedEvent;
 import com.rentmate.service.user.domain.dto.event.UserRegisteredEvent;
 import com.rentmate.service.user.service.UserEventPublisher;
@@ -19,13 +20,20 @@ public class UserEventPublisherImpl implements UserEventPublisher {
     public void publishUserRegistered(UserRegisteredEvent event) {
         log.info("Publishing event: " + event.getClass().getSimpleName() + " " + event.toString());
 
-        //TODO: publish event to rabbitmq exchange
+        //TODO: publish event to rabbitmq exchange, key = user.registered
     }
 
     @Override
     public void publishPasswordResetRequestedEvent(PasswordResetRequestedEvent event) {
         log.info("Publishing event: " + event.getClass().getSimpleName() + " " + event.toString());
 
-        //TODO: publish event to rabbitmq exchange
+        //TODO: publish event to rabbitmq exchange, key = user.password.reset.requested
+    }
+
+    @Override
+    public void publishProfileDisabledEvent(ProfileDisabledEvent event) {
+        log.info("Publishing event: " + event.getClass().getSimpleName() + " " + event.toString());
+
+        //TODO: publish event to rabbitmq exchange, key = user.profile.disabled
     }
 }

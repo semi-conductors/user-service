@@ -1,14 +1,12 @@
-package com.rentmate.service.user.controller;
+package com.rentmate.service.user.service.shared.exception;
 
-import com.rentmate.service.user.shared.exception.BadRequestException;
-import com.rentmate.service.user.shared.exception.NotFoundException;
-import com.rentmate.service.user.shared.exception.RegistrationException;
-import com.rentmate.service.user.shared.exception.SessionNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,8 +15,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Map;
 
 @RestControllerAdvice
-public class ErrorHandlers {
-    private final Logger logger = LoggerFactory.getLogger(ErrorHandlers.class);
+public class GlobalExceptionHandlers {
+    private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandlers.class);
 
     @ExceptionHandler(RegistrationException.class)
     public ProblemDetail handleRegistrationException(RegistrationException exception) {
@@ -80,5 +78,21 @@ public class ErrorHandlers {
         result.setTitle("Bad request");
         result.setDetail(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidEnum(HttpMessageNotReadableException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Bad request");
+        pd.setDetail("Invalid input value, if there this is an enum, make sure of using correct values.");
+        return ResponseEntity.badRequest().body(pd);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleAccessDeniedException(AccessDeniedException ex) {
+        var result = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        result.setTitle("Access denied");
+        result.setDetail("You do not have permission to access this resource.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
     }
 }

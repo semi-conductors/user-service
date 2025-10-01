@@ -2,6 +2,7 @@ package com.rentmate.service.user.service.implementation;
 
 import com.rentmate.service.user.domain.dto.auth.*;
 import com.rentmate.service.user.domain.dto.event.PasswordResetRequestedEvent;
+import com.rentmate.service.user.domain.dto.user.UserProfileResponse;
 import com.rentmate.service.user.domain.entity.PasswordResetToken;
 import com.rentmate.service.user.domain.entity.User;
 import com.rentmate.service.user.domain.entity.UserSession;
@@ -9,13 +10,13 @@ import com.rentmate.service.user.domain.mapper.*;
 import com.rentmate.service.user.repository.PasswordResetTokenRepository;
 import com.rentmate.service.user.repository.UserRepository;
 import com.rentmate.service.user.repository.UserSessionRepository;
-import com.rentmate.service.user.shared.util.JwtUtils;
+import com.rentmate.service.user.service.shared.util.JwtUtils;
 import com.rentmate.service.user.service.AuthService;
 import com.rentmate.service.user.service.UserEventPublisher;
-import com.rentmate.service.user.shared.exception.NotFoundException;
-import com.rentmate.service.user.shared.exception.RegistrationException;
-import com.rentmate.service.user.shared.exception.SessionNotFoundException;
-import com.rentmate.service.user.shared.util.TokenUtils;
+import com.rentmate.service.user.service.shared.exception.NotFoundException;
+import com.rentmate.service.user.service.shared.exception.RegistrationException;
+import com.rentmate.service.user.service.shared.exception.SessionNotFoundException;
+import com.rentmate.service.user.service.shared.util.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -81,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
         UserSession userSession = userSessionRepository.findActiveSession(TokenUtils.hashToken(refreshToken), LocalDateTime.now())
                 .orElseThrow(() -> new SessionNotFoundException("no active session found with the given token"));
 
-        String token = jwtUtils.generateJwtToken(AuthMapper.toApplicationUser(userSession.getUser()));
+        String token = jwtUtils.generateJwtToken(UserMapper.toUserProfileResponse(userSession.getUser()));
         return new RefreshResponse(token);
     }
 
@@ -126,10 +127,10 @@ public class AuthServiceImpl implements AuthService {
 
         userSessionRepository.save(userSession);
 
-        ApplicationUser appUser = AuthMapper.toApplicationUser(user);
-        String accessToken = jwtUtils.generateJwtToken(appUser);
+        UserProfileResponse userProfile = UserMapper.toUserProfileResponse(user);
+        String accessToken = jwtUtils.generateJwtToken(userProfile);
 
-        return new LoginResponse(appUser, accessToken, refreshToken);
+        return new LoginResponse(userProfile, accessToken, refreshToken);
     }
 
     private String createAndSavePasswordResetToken(User user) {

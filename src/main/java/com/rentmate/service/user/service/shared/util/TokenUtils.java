@@ -1,4 +1,4 @@
-package com.rentmate.service.user.shared.util;
+package com.rentmate.service.user.service.shared.util;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

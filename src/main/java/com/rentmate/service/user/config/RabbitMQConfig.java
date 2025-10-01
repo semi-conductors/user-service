@@ -1,4 +1,4 @@
-package com.rentmate.service.user.shared.config;
+package com.rentmate.service.user.config;
 
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.context.annotation.Bean;

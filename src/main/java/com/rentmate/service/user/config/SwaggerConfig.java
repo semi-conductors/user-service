@@ -1,4 +1,4 @@
-package com.rentmate.service.user.shared.config;
+package com.rentmate.service.user.config;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;

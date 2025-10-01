@@ -1,10 +1,12 @@
-package com.rentmate.service.user.shared.util;
+package com.rentmate.service.user.service.shared.util;
 
 import com.rentmate.service.user.domain.dto.auth.ApplicationUser;
+import com.rentmate.service.user.domain.dto.user.UserProfileResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -22,12 +24,12 @@ public class JwtUtils {
         this.expirationTime = jwtExpirationMs;
     }
 
-    public String generateJwtToken(ApplicationUser user) {
+    public String generateJwtToken(UserProfileResponse user) {
         return Jwts.builder()
                 .subject(user.id().toString())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * expirationTime))
-                .claim("role", user.role())
+                .claim("role", "ROLE_"+user.role())
                 .claim("username", user.username())
                 .signWith(key)
                 .compact();

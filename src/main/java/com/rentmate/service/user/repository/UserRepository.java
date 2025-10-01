@@ -1,14 +1,17 @@
 package com.rentmate.service.user.repository;
 
 import com.rentmate.service.user.domain.entity.User;
+import com.rentmate.service.user.domain.enumuration.AccountActivityStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     @Query("SELECT u FROM User u WHERE u.email = ?1")
     Optional<User> findByEmail(String email);
 
@@ -19,10 +22,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findNotDisabledByEmail(String email);
 
     @Modifying
-    @Query("UPDATE User u SET u.isDisabled = true WHERE u.id = :id")
-    void disableUser(@Param("id") Long id);
+    @Query("UPDATE User u SET u.isDisabled = true, u.activityStatus =:status WHERE u.id = :id")
+    void deactivateUser(@Param("id") Long id,@Param("status") AccountActivityStatus status);
 
     @Modifying
     @Query("UPDATE User u SET u.password = :password WHERE u.id = :id")
     int updatePassword(@Param("id") Long id, @Param("password") String password);
+
+    <T> Optional<T> findById(Long id, Class<T> type);
 }
