@@ -4,6 +4,7 @@ import com.rentmate.service.user.domain.dto.event.PasswordResetRequestedEvent;
 import com.rentmate.service.user.domain.dto.event.*;
 import com.rentmate.service.user.domain.entity.PasswordResetToken;
 import com.rentmate.service.user.domain.entity.User;
+import com.rentmate.service.user.domain.entity.VerificationRequest;
 
 import java.time.LocalDateTime;
 
@@ -33,6 +34,27 @@ public class EventMapper {
                 disabledBy,
                 reason,
                 LocalDateTime.now()
+        );
+    }
+
+    public static IdentityVerificationApprovedEvent toIdentityApprovedEvent(Long userId, String email, VerificationRequest verificationRequest) {
+        return new IdentityVerificationApprovedEvent(
+                userId,
+                verificationRequest.getId(),
+                email,
+                verificationRequest.getCreatedAt(),
+                verificationRequest.getReviewedAt()
+        );
+    }
+
+    public static IdentityVerificationRejectedEvent toIdentityRejectedEvent(Long userId, String email, VerificationRequest verificationRequest) {
+        return new IdentityVerificationRejectedEvent(
+                userId,
+                verificationRequest.getId(),
+                email,
+                verificationRequest.getCreatedAt(),
+                verificationRequest.getReviewedAt(),
+                verificationRequest.getRejectionReason()
         );
     }
 }

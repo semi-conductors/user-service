@@ -95,4 +95,12 @@ public class GlobalExceptionHandlers {
         result.setDetail("You do not have permission to access this resource.");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
     }
+
+    @ExceptionHandler(ForbiddenActionException.class)
+    public ResponseEntity<ProblemDetail> handleForbiddenActionException(ForbiddenActionException ex) {
+        var result = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        result.setTitle("Forbidden action");
+        result.setDetail(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
+    }
 }

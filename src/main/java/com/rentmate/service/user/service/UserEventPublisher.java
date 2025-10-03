@@ -7,4 +7,6 @@ public interface UserEventPublisher {
     void publishUserRegistered(UserRegisteredEvent event);
     void publishPasswordResetRequestedEvent(PasswordResetRequestedEvent event);
     void publishProfileDisabledEvent(ProfileDisabledEvent event);
+    void publishIdentityVerificationApprovedEvent(IdentityVerificationApprovedEvent event);
+    void publishIdentityVerificationRejectedEvent(IdentityVerificationRejectedEvent event);
 }

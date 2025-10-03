@@ -3,6 +3,7 @@ package com.rentmate.service.user.domain.mapper;
 import com.rentmate.service.user.domain.dto.user.*;
 import com.rentmate.service.user.domain.entity.User;
 import com.rentmate.service.user.domain.enumuration.AccountActivityStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class UserMapper {
     public static UserProfileResponse toUserProfileResponse(User user) {
@@ -20,12 +21,12 @@ public class UserMapper {
         );
     }
 
-    public static User toUser(CreateProfileRequest request) {
+    public static User toUser(CreateProfileRequest request, PasswordEncoder encoder) {
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(encoder.encode(request.getPassword()));
         user.setPhoneNumber(request.getPhoneNumber());
         user.setActivityStatus(AccountActivityStatus.ACTIVE);
         user.setRole(request.getRole());

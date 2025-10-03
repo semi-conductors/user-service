@@ -26,8 +26,13 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     void deactivateUser(@Param("id") Long id,@Param("status") AccountActivityStatus status);
 
     @Modifying
+    @Query("UPDATE User u SET u.isIdentityVerified = true WHERE u.id = :id")
+    void verifyUser(@Param("id") Long id);
+
+    @Modifying
     @Query("UPDATE User u SET u.password = :password WHERE u.id = :id")
     int updatePassword(@Param("id") Long id, @Param("password") String password);
+
 
     <T> Optional<T> findById(Long id, Class<T> type);
 }

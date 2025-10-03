@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserSessionRepository userSessionRepository;
     private final UserEventPublisher eventPublisher;
-
+    private final PasswordEncoder encoder;
     @Override
     public UserProfileResponse getUserProfile() {
         User user = userRepository.
@@ -108,7 +109,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserProfileResponse createProfile(CreateProfileRequest request) {
-        User user = UserMapper.toUser(request);
+        User user = UserMapper.toUser(request, encoder);
         userRepository.save(user);
         userRepository.flush();
 

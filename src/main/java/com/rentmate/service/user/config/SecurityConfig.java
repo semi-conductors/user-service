@@ -50,7 +50,7 @@ public class SecurityConfig {
 //                        .requestMatchers("/admin").hasRole("ADMIN")
 //                        .requestMatchers("/user").hasRole("USER")
                            //     .anyRequest().permitAll()
-                        //.anyRequest().authenticated()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
