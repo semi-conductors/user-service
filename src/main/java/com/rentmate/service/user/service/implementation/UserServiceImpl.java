@@ -1,5 +1,6 @@
 package com.rentmate.service.user.service.implementation;
 
+import com.rentmate.service.user.service.shared.exception.ConflictException;
 import com.rentmate.service.user.service.shared.specification.UserSpecification;
 import com.rentmate.service.user.domain.dto.event.ProfileDisabledEvent;
 import com.rentmate.service.user.domain.dto.event.UserRegisteredEvent;
@@ -26,7 +27,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -110,6 +110,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfileResponse createProfile(CreateProfileRequest request) {
         User user = UserMapper.toUser(request, encoder);
+
+        if(userRepository.userExists(user.getEmail(), user.getPhoneNumber()).orElse(false))
+            throw new ConflictException("User already exist, chack your email and phone number.");
+
         userRepository.save(user);
         userRepository.flush();
 

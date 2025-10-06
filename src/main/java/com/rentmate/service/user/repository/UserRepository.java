@@ -2,6 +2,7 @@ package com.rentmate.service.user.repository;
 
 import com.rentmate.service.user.domain.entity.User;
 import com.rentmate.service.user.domain.enumuration.AccountActivityStatus;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -33,6 +34,21 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query("UPDATE User u SET u.password = :password WHERE u.id = :id")
     int updatePassword(@Param("id") Long id, @Param("password") String password);
 
+    @Modifying
+    @Query("""
+        UPDATE User u
+        SET u.averageRating = (
+            SELECT COALESCE(AVG(r.rating), 0)
+            FROM UserRating r
+            WHERE r.ratedUser.id = :userId
+        ), u.totalRating = (
+                SELECT COUNT(r)
+                FROM UserRating r
+                WHERE r.ratedUser.id = :userId
+        )
+        WHERE u.id = :userId
+    """)
+    void updateAverageRating(@Param("userId") Long userId);
 
     <T> Optional<T> findById(Long id, Class<T> type);
 }

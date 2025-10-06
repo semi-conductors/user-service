@@ -14,7 +14,7 @@ import com.rentmate.service.user.service.shared.util.JwtUtils;
 import com.rentmate.service.user.service.AuthService;
 import com.rentmate.service.user.service.UserEventPublisher;
 import com.rentmate.service.user.service.shared.exception.NotFoundException;
-import com.rentmate.service.user.service.shared.exception.RegistrationException;
+import com.rentmate.service.user.service.shared.exception.ConflictException;
 import com.rentmate.service.user.service.shared.exception.SessionNotFoundException;
 import com.rentmate.service.user.service.shared.util.TokenUtils;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
         User user = AuthMapper.toUser(request, passwordEncoder);
 
         if(userRepository.userExists(user.getEmail(), user.getPhoneNumber()).orElse(false))
-            throw new RegistrationException("user already exist, chack your email and phone number.");
+            throw new ConflictException("user already exist, chack your email and phone number.");
 
         userRepository.save(user);
         var response = login(user);
@@ -90,7 +90,10 @@ public class AuthServiceImpl implements AuthService {
     public void sendResetToken(String email) {
         User user = userRepository
                 .findNotDisabledByEmail(email.trim())
-                .orElseThrow(() -> new NotFoundException("No user found with the given email"));
+                .orElse(null);
+
+        if(user == null)
+            return;
 
         String rawToken = createAndSavePasswordResetToken(user);
         eventPublisher.publishPasswordResetRequestedEvent(

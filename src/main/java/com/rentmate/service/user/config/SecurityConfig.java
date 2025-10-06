@@ -41,15 +41,6 @@ public class SecurityConfig {
                                 "/users/auth/password-reset/confirm",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**").permitAll()
-                        .requestMatchers(
-                                "/users/auth/logout",
-                                "/users/profile",
-                                "/users/{id}",
-                                "/users",
-                                "/users/{id}/status").authenticated()
-//                        .requestMatchers("/admin").hasRole("ADMIN")
-//                        .requestMatchers("/user").hasRole("USER")
-                           //     .anyRequest().permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

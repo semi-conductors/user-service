@@ -18,10 +18,10 @@ import java.util.Map;
 public class GlobalExceptionHandlers {
     private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandlers.class);
 
-    @ExceptionHandler(RegistrationException.class)
-    public ProblemDetail handleRegistrationException(RegistrationException exception) {
+    @ExceptionHandler(ConflictException.class)
+    public ProblemDetail handleConflictException(ConflictException exception) {
         var result = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        result.setTitle("Registration failed");
+        result.setTitle("Conflict");
         result.setDetail(exception.getMessage());
         return result;
     }

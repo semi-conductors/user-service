@@ -1,6 +1,7 @@
 package com.rentmate.service.user.service.shared.util;
 
 import com.rentmate.service.user.domain.dto.auth.ApplicationUser;
+import com.rentmate.service.user.domain.dto.user.UserPrincipal;
 import com.rentmate.service.user.domain.dto.user.UserProfileResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -31,18 +32,10 @@ public class JwtUtils {
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * expirationTime))
                 .claim("role", "ROLE_"+user.role())
                 .claim("username", user.username())
+                .claim("email", user.email())
                 .signWith(key)
                 .compact();
     }
-
-//    public String getUsernameFromJwtToken(String token) {
-//        return Jwts.parser()
-//                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
-//                .build()
-//                .parseSignedClaims(token)
-//                .getPayload()
-//                .getSubject(); //subject claim is the username, 'sub' in JWT
-//    }
 
 
     public boolean validateJwtToken(String authToken) {
@@ -56,5 +49,15 @@ public class JwtUtils {
                 build().
                 parseSignedClaims(token).
                 getPayload();
+    }
+
+    public UserPrincipal extractUserPrincipal(String token) {
+        var claims = extractAllClaims(token);
+        return new UserPrincipal(
+                claims.get("username", String.class),
+                Long.parseLong(claims.getSubject()),
+                claims.get("email", String.class),
+                claims.get("role", String.class)
+        );
     }
 }
