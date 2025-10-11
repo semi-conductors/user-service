@@ -4,6 +4,7 @@ import com.rentmate.service.user.domain.dto.event.PasswordResetRequestedEvent;
 import com.rentmate.service.user.domain.dto.event.*;
 import com.rentmate.service.user.domain.entity.PasswordResetToken;
 import com.rentmate.service.user.domain.entity.User;
+import com.rentmate.service.user.domain.entity.UserReport;
 import com.rentmate.service.user.domain.entity.VerificationRequest;
 
 import java.time.LocalDateTime;
@@ -56,5 +57,15 @@ public class EventMapper {
                 verificationRequest.getReviewedAt(),
                 verificationRequest.getRejectionReason()
         );
+    }
+
+    public static ReportCreatedEvent toReportCreatedEvent(UserReport report) {
+        return ReportCreatedEvent.builder()
+                .reporterId(report.getId())
+                .reporterId(report.getReporter().getId())
+                .reportedUserId(report.getReportedUser().getId())
+                .reportType(report.getReportType().toString())
+                .reportedUserEmail(report.getReportedUser().getEmail())
+                .build();
     }
 }

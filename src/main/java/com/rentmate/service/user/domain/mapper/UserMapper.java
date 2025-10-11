@@ -32,4 +32,5 @@ public class UserMapper {
         user.setRole(request.getRole());
         return user;
     }
+
 }

@@ -1,5 +1,6 @@
 package com.rentmate.service.user.repository;
 
+import com.rentmate.service.user.domain.dto.user.UsernameDto;
 import com.rentmate.service.user.domain.entity.User;
 import com.rentmate.service.user.domain.enumuration.AccountActivityStatus;
 import jakarta.transaction.Transactional;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,4 +53,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     void updateAverageRating(@Param("userId") Long userId);
 
     <T> Optional<T> findById(Long id, Class<T> type);
+
+    <T> List<T> findByIdIn(Collection<Long> ids, Class<T> type);
 }

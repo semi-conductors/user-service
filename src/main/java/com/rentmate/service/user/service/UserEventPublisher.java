@@ -9,4 +9,5 @@ public interface UserEventPublisher {
     void publishProfileDisabledEvent(ProfileDisabledEvent event);
     void publishIdentityVerificationApprovedEvent(IdentityVerificationApprovedEvent event);
     void publishIdentityVerificationRejectedEvent(IdentityVerificationRejectedEvent event);
+    void publishReportCreatedEvent(ReportCreatedEvent report);
 }

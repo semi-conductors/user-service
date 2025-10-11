@@ -49,4 +49,10 @@ public class UserEventPublisherImpl implements UserEventPublisher {
 
         //TODO: publish event to rabbitmq exchange, key = user.identity.verification.rejected
     }
+
+    @Override
+    public void publishReportCreatedEvent(ReportCreatedEvent report) {
+        // TODO: Publish event to RabbitMQ/Kafka
+        log.info("TODO: Publish ReportSubmitted event for report ID: {}", report.getReportId());
+    }
 }

@@ -35,3 +35,7 @@ user:
       time:
         days: 7
   password-reset-token-expiration-minutes: 60
+
+report:
+  escalation-period-hours: 1
+  locking-period-minutes: 30
