@@ -17,42 +17,36 @@ public class UserEventPublisherImpl implements UserEventPublisher {
     @Override
     public void publishUserRegistered(UserRegisteredEvent event) {
         log.info("Publishing event: " + event.getClass().getSimpleName() + " " + event.toString());
-
-        //TODO: publish event to rabbitmq exchange, key = user.registered
+        rabbitTemplate.convertAndSend(exchange, "user.registered", event);
     }
 
     @Override
     public void publishPasswordResetRequestedEvent(PasswordResetRequestedEvent event) {
         log.info("Publishing event: " + event.getClass().getSimpleName() + " " + event.toString());
-
-        //TODO: publish event to rabbitmq exchange, key = user.password.reset.requested
+        rabbitTemplate.convertAndSend(exchange, "user.password.reset.requested", event);
     }
 
     @Override
     public void publishProfileDisabledEvent(ProfileDisabledEvent event) {
         log.info("Publishing event: " + event.getClass().getSimpleName() + " " + event.toString());
-
-        //TODO: publish event to rabbitmq exchange, key = user.profile.disabled
+        rabbitTemplate.convertAndSend(exchange, "user.profile.disabled", event);
     }
 
     @Override
     public void publishIdentityVerificationApprovedEvent(IdentityVerificationApprovedEvent event) {
         log.info("Publishing event: " + event.getClass().getSimpleName() + " " + event.toString());
-
-        //TODO: publish event to rabbitmq exchange, key = user.identity.verification.approved
-
+        rabbitTemplate.convertAndSend(exchange, "user.identity.verification.approved", event);
     }
 
     @Override
     public void publishIdentityVerificationRejectedEvent(IdentityVerificationRejectedEvent event) {
         log.info("Publishing event: " + event.getClass().getSimpleName() + " " + event.toString());
-
-        //TODO: publish event to rabbitmq exchange, key = user.identity.verification.rejected
+        rabbitTemplate.convertAndSend(exchange, "user.identity.verification.rejected", event);
     }
 
     @Override
-    public void publishReportCreatedEvent(ReportCreatedEvent report) {
-        // TODO: Publish event to RabbitMQ/Kafka
-        log.info("TODO: Publish ReportSubmitted event for report ID: {}", report.getReportId());
+    public void publishReportCreatedEvent(ReportCreatedEvent event) {
+        log.info("Publishing event: " + event.getClass().getSimpleName() + " " + event.toString());
+        rabbitTemplate.convertAndSend(exchange, "report.submitted", event);
     }
 }

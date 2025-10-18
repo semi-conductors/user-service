@@ -203,6 +203,16 @@ public class ReportServiceImpl implements ReportService {
         if(report.isLocked() && !report.isLockedBy(loggedInUser.getId()))
             throw new BadRequestException("Report is locked by another admin until: " + report.getLockExpiresAt());
 
+        if(dismissed){
+            User reported = report.getReportedUser();
+
+            if(reported.getActivityStatus() == AccountActivityStatus.PENDING_REPORT_REVIEW)
+                reported.setActivityStatus(AccountActivityStatus.ACTIVE);
+
+            userRepository.save(reported);
+        }
+
+
         User resolver = new User(); resolver.setId(loggedInUser.getId());
 
         report.setStatus(dismissed ? ReportStatus.DISMISSED : ReportStatus.RESOLVED);
