@@ -479,4 +479,13 @@ public class UserController {
         );
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/{id}/details") @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @Operation(
+            summary = "Get user profile by ID (Admin/Manager only)",
+            description = "Retrieves a single user profile by ID. Requires ADMIN or MANAGER role.",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<UserProfileResponse> getById(@PathVariable Long id){
+        return ResponseEntity.ok(userService.getUserProfile(id));
+    }
 }

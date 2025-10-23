@@ -168,6 +168,11 @@ public class UserServiceImpl implements UserService {
         );
     }
 
+    @Override
+    public UserProfileResponse getUserProfile(Long userId) {
+        return userRepository.findById(userId, UserProfileResponse.class).orElseThrow(() -> new NotFoundException("User profile not found"));
+    }
+
 
     private Sort createSort(String sortBy, String sortOrder) {
         String field = mapSortField(sortBy);

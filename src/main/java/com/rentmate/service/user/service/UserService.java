@@ -24,6 +24,8 @@ public interface UserService {
     UserListResponse getAllUsers(Integer page, Integer limit, UserRole role, AccountActivityStatus status,
             Boolean isVerified, String search, String sortBy, String sortOrder);
 
+    UserProfileResponse getUserProfile(Long userId);
+
     static Long getAuthenticatedUserId() {
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             throw new NotFoundException("No authentication found");
