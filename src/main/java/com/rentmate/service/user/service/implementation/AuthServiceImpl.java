@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override @Transactional
     public void logout(String refreshToken) {
-        int rows = userSessionRepository.deactivateSession(refreshToken);
+        int rows = userSessionRepository.deactivateSession(TokenUtils.hashToken(refreshToken));
         if(rows == 0){
             throw new SessionNotFoundException("no active session found with the given token");
         }
