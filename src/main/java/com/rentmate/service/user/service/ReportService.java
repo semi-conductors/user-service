@@ -17,7 +17,7 @@ public interface ReportService {
     ReportListResponse getReceivedReports(UserPrincipal loggedInUser, int page, int limit);
     ReportListResponse getAllReports(int page, int limit, ReportStatus status, ReportType type);
     ReportDetailsResponse getReport(Long id);
-    ReportDetailsResponse claimReport(Long id, UserPrincipal loggedInUser);
+    void claimReport(Long id, UserPrincipal loggedInUser);
     void releaseReport(Long id, UserPrincipal loggedInUser);
     void resolveReport(Long id, UserPrincipal loggedInUser, boolean dismissed);
     LocalDateTime refreshLock(Long reportId, UserPrincipal loggedInUser);

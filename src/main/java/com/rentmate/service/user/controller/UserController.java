@@ -20,8 +20,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/users")
@@ -480,12 +483,16 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}/details") @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @GetMapping("/{id}/details")
     @Operation(
             summary = "Get user profile by ID (Admin/Manager only)",
             description = "Retrieves a single user profile by ID. Requires ADMIN or MANAGER role.",
             security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<UserProfileResponse> getById(@PathVariable Long id){
+        var currUser = UserService.getAuthenticatedUser();
+        if(currUser.getRole().equalsIgnoreCase("user") && !Objects.equals(id, currUser.getId()))
+            throw new AccessDeniedException("You aren't authorized to access this resource");
+
         return ResponseEntity.ok(userService.getUserProfile(id));
     }
 }

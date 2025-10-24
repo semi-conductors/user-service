@@ -36,5 +36,4 @@ public class ReportDetailsResponse {
 
     private UserProfileResponse reporter;
     private UserProfileResponse reported;
-    private UserProfileResponse claimedBy;
 }

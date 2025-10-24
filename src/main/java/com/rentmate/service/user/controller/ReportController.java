@@ -235,8 +235,9 @@ public class ReportController {
             """,
             security = @SecurityRequirement(name = "bearerAuth")
     )
-    public ResponseEntity<ReportDetailsResponse> claimReport(@PathVariable("id") Long reportId) {
-        return ResponseEntity.ok(reportService.claimReport(reportId, UserService.getAuthenticatedUser()));
+    public ResponseEntity<Void> claimReport(@PathVariable("id") Long reportId) {
+        reportService.claimReport(reportId, UserService.getAuthenticatedUser());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/reports/{id}/release")

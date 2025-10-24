@@ -1,5 +1,6 @@
 package com.rentmate.service.user.service.implementation;
 
+import com.rentmate.service.user.domain.dto.rental.RentalResponse;
 import com.rentmate.service.user.domain.dto.report.*;
 import com.rentmate.service.user.domain.dto.user.UserPrincipal;
 import com.rentmate.service.user.domain.dto.user.UserProfileResponse;
@@ -16,6 +17,7 @@ import com.rentmate.service.user.repository.UserReportRepository;
 import com.rentmate.service.user.repository.UserRepository;
 import com.rentmate.service.user.service.ReportService;
 import com.rentmate.service.user.service.UserEventPublisher;
+import com.rentmate.service.user.service.shared.client.RentalServiceClient;
 import com.rentmate.service.user.service.shared.exception.BadRequestException;
 import com.rentmate.service.user.service.shared.exception.ForbiddenActionException;
 import com.rentmate.service.user.service.shared.exception.NotFoundException;
@@ -32,10 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +43,8 @@ public class ReportServiceImpl implements ReportService {
     private final UserReportRepository reportRepository;
     private final UserRepository userRepository;
     private final UserEventPublisher eventPublisher;
+    private final RentalServiceClient rentalService;
+
     @Value("${report.locking-period-minutes:30}")
     private Long lockingPeriodMinutes;
 
@@ -57,8 +58,11 @@ public class ReportServiceImpl implements ReportService {
 
         validateDetailsLength(request);
 
-        // TODO: Cross-service validation
-        validateCrossServiceReferences(request);
+        try{
+            validateCrossServiceReferences(request);
+        } catch (Exception e) {
+            throw new BadRequestException("validation failed: " + e.getLocalizedMessage());
+        }
 
         UserReport savedReport = reportRepository.save(ReportMapper.toUserReport(request, reporter, reportedUser));
 
@@ -136,7 +140,7 @@ public class ReportServiceImpl implements ReportService {
         UserReport report = reportRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Report not found"));
 
-        var res = userRepository.findAllById(List.of(report.getReporter().getId(), report.getReportedUser().getId(), report.isLocked() ? report.getClaimedBy().getId() : -1));
+        var res = userRepository.findAllById(List.of(report.getReporter().getId(), report.getReportedUser().getId()));
         UserProfileResponse reporter = UserMapper.toUserProfileResponse(res
                 .stream()
                 .filter(user -> user.getId().equals(report.getReporter().getId())).findFirst()
@@ -147,24 +151,19 @@ public class ReportServiceImpl implements ReportService {
                 .filter(user -> user.getId().equals(report.getReportedUser().getId())).findFirst()
                 .orElseThrow(() -> new NotFoundException("Reported user not found")));
 
-        UserProfileResponse cla = null;
-        if(report.getClaimedBy() != null)
-            cla = UserMapper.toUserProfileResponse(res.stream()
-                    .filter(user -> user.getId().equals(report.getClaimedBy().getId())).findFirst()
-                    .orElseThrow(() -> new NotFoundException("Claimed user not found")));
-
-        return ReportMapper.toReportDetailsResponse(report, reporter, reported, cla);
+        return ReportMapper.toReportDetailsResponse(report, reporter, reported);
     }
 
     @Override @Transactional
-    public ReportDetailsResponse claimReport(Long id, UserPrincipal loggedInUser) {
+    public void claimReport(Long id, UserPrincipal loggedInUser) {
         UserReport report = reportRepository.findById(id).orElseThrow(() -> new NotFoundException("Report not found"));
 
-        if(report.getStatus() != ReportStatus.PENDING)
+        if(report.getStatus() == ReportStatus.DISMISSED || report.getStatus() == ReportStatus.RESOLVED)
             throw new BadRequestException("Only PENDING reports can be locked");
 
         if(report.isLocked() && !report.isLockedBy(loggedInUser.getId()))
             throw new BadRequestException("Report is locked by another admin until: " + report.getLockExpiresAt());
+
 
         User user =  new User(); user.setId(loggedInUser.getId());
 
@@ -174,8 +173,6 @@ public class ReportServiceImpl implements ReportService {
         report.setStatus(ReportStatus.UNDER_REVIEW);
 
         reportRepository.save(report);
-
-        return getReport(id);
     }
 
     @Override @Transactional
@@ -260,29 +257,26 @@ public class ReportServiceImpl implements ReportService {
             // DeliveryServiceClient.validateDeliveryExists(request.getRelatedDeliveryId());
         }
 
-        // TODO: Validate rental_id exists in Rental Service
-        if (request.getRelatedRentalId() != null) {
-            log.debug("TODO: Validate rental ID {} exists in Rental Service",
-                    request.getRelatedRentalId());
-            // RentalServiceClient.validateRentalExists(request.getRelatedRentalId());
 
-            // TODO: Validate reporter is participant in the rental
-            log.debug("TODO: Validate reporter is participant in rental {}",
-                    request.getRelatedRentalId());
-        }
+        RentalResponse rental = rentalService.getRentalById(request.getRelatedRentalId());
 
-        // TODO: For OVERDUE reports, validate rental is actually overdue
-        if (request.getReportType() == CreateReportRequest.ReportType.OVERDUE) {
-            log.debug("TODO: Validate rental {} is actually overdue",
-                    request.getRelatedRentalId());
-            // RentalServiceClient.validateRentalOverdue(request.getRelatedRentalId());
-        }
+        if(request.getReportType() == CreateReportRequest.ReportType.DAMAGE ||
+                !Objects.equals(rental.getOwnerId(), request.getReporterUserId()))
+            throw new BadRequestException("the reporter must be item owner.");
+
+        if(!Objects.equals(request.getReportedUserId(), rental.getRenterId()))
+            throw new BadRequestException("the reported user must be the renter.");
+
+
+        // For OVERDUE reports, validate rental is actually overdue
+        if (request.getReportType() == CreateReportRequest.ReportType.OVERDUE
+            && rental.getEndDate().isBefore(LocalDateTime.now()))
+            throw new BadRequestException("Rental is not overdue.");
+
 
         // TODO: For DAMAGE reports, validate delivery is in correct status
-        if (request.getReportType() == CreateReportRequest.ReportType.DAMAGE) {
-            log.debug("TODO: Validate delivery {} status for damage report",
-                    request.getRelatedDeliveryId());
-        }
+        //if (request.getReportType() == CreateReportRequest.ReportType.DAMAGE)
+
     }
 
     @Transactional

@@ -85,7 +85,7 @@ public class ReportMapper {
         return thievingReport;
     }
 
-    public static ReportDetailsResponse toReportDetailsResponse(UserReport report, UserProfileResponse reporter, UserProfileResponse reported, UserProfileResponse claimedBy) {
+    public static ReportDetailsResponse toReportDetailsResponse(UserReport report, UserProfileResponse reporter, UserProfileResponse reported) {
         return ReportDetailsResponse.builder()
                 .id(report.getId())
                 .reportType(report.getReportType())
@@ -98,7 +98,6 @@ public class ReportMapper {
                 .resolvedAt(report.getResolvedAt())
                 .reporter(reporter)
                 .reported(reported)
-                .claimedBy(claimedBy)
                 .claimedAt(report.getClaimedAt())
                 .lockExpiresAt(report.getLockExpiresAt()).build();
     }

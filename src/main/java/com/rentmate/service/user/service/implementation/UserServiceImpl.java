@@ -69,7 +69,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("User profile not found"));
     }
 
-    //TODO: check if user have an active rentals.
     @Override @Transactional
     public void disableOwnProfile() {
         Long userId = UserService.getAuthenticatedUserId();
@@ -170,7 +169,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserProfileResponse getUserProfile(Long userId) {
-        return userRepository.findById(userId, UserProfileResponse.class).orElseThrow(() -> new NotFoundException("User profile not found"));
+        return UserMapper.toUserProfileResponse(userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User profile not found")));
     }
 
 

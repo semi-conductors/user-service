@@ -18,6 +18,7 @@ import com.rentmate.service.user.service.shared.exception.NotFoundException;
 import com.rentmate.service.user.service.shared.specification.VerificationRequestSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service @RequiredArgsConstructor
+@Service @RequiredArgsConstructor @Slf4j
 public class VerificationServiceImpl implements VerificationService {
     private final CloudinaryService cloudinaryService;
     private final UserRepository userRepository;
@@ -37,6 +38,8 @@ public class VerificationServiceImpl implements VerificationService {
     public Map<String, Object> getUploadUrls() {
         Map<String, Object> frontParams = cloudinaryService.generateSignedParams("id_front_" + UUID.randomUUID());
         Map<String, Object> backParams = cloudinaryService.generateSignedParams("id_back_" + UUID.randomUUID());
+
+        log.info("responding with signed params frontParams: {}, backParams: {}", frontParams, backParams);
 
         return Map.of(
                 "front", frontParams,
