@@ -4,17 +4,17 @@ A comprehensive microservice for managing users, authentication, identity verifi
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Architecture](#architecture)
-- [Getting Started](#getting-started)
-- [API Documentation](#api-documentation)
-- [Database Schema](#database-schema)
-- [Event Publishing](#event-publishing)
-- [Security](#security)
-- [Scheduled Tasks](#scheduled-tasks)
-- [Configuration](#configuration)
+- [Overview](#-overview)
+- [Features](#-features)
+- [Technology Stack](#-technology-stack)
+- [Architecture](#-architecture)
+- [Getting Started](#-getting-started)
+- [API Documentation](#-api-documentation)
+- [Database Schema](#-database-schema)
+- [Event Publishing](#-event-publishing)
+- [Security](#-security)
+- [Scheduled Tasks](#-scheduled-tasks)
+- [Configuration](#-configuration)
 
 ## 🎯 Overview
 
