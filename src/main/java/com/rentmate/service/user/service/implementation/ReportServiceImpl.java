@@ -17,6 +17,7 @@ import com.rentmate.service.user.repository.UserReportRepository;
 import com.rentmate.service.user.repository.UserRepository;
 import com.rentmate.service.user.service.ReportService;
 import com.rentmate.service.user.service.UserEventPublisher;
+import com.rentmate.service.user.service.UserService;
 import com.rentmate.service.user.service.shared.client.RentalServiceClient;
 import com.rentmate.service.user.service.shared.exception.BadRequestException;
 import com.rentmate.service.user.service.shared.exception.ForbiddenActionException;
@@ -50,7 +51,10 @@ public class ReportServiceImpl implements ReportService {
 
     @Transactional
     public ReportResponse createReport(CreateReportRequest request) {
-        User reporter = userRepository.findById(request.getReporterUserId())
+        boolean isSystemReport = request.getReportType() == CreateReportRequest.ReportType.FAKE_USER
+                || request.getReportType() == CreateReportRequest.ReportType.FRAUD;
+
+        User reporter = userRepository.findById(isSystemReport ? UserService.getAuthenticatedUserId() : request.getReporterUserId())
                 .orElseThrow(() -> new NotFoundException("Reporter user not found"));
 
         User reportedUser = userRepository.findById(request.getReportedUserId())
@@ -237,7 +241,7 @@ public class ReportServiceImpl implements ReportService {
 
     private void validateDetailsLength(CreateReportRequest request) {
         int minLength = switch (request.getReportType()) {
-            case FAKE_USER, OVERDUE -> 40;
+            case FAKE_USER, OVERDUE -> 20;
             case FRAUD, DAMAGE -> 60;
         };
 
@@ -257,10 +261,9 @@ public class ReportServiceImpl implements ReportService {
             // DeliveryServiceClient.validateDeliveryExists(request.getRelatedDeliveryId());
         }
 
-
         RentalResponse rental = rentalService.getRentalById(request.getRelatedRentalId());
 
-        if(request.getReportType() == CreateReportRequest.ReportType.DAMAGE ||
+        if(request.getReportType() == CreateReportRequest.ReportType.DAMAGE &&
                 !Objects.equals(rental.getOwnerId(), request.getReporterUserId()))
             throw new BadRequestException("the reporter must be item owner.");
 
@@ -272,11 +275,6 @@ public class ReportServiceImpl implements ReportService {
         if (request.getReportType() == CreateReportRequest.ReportType.OVERDUE
             && rental.getEndDate().isBefore(LocalDateTime.now()))
             throw new BadRequestException("Rental is not overdue.");
-
-
-        // TODO: For DAMAGE reports, validate delivery is in correct status
-        //if (request.getReportType() == CreateReportRequest.ReportType.DAMAGE)
-
     }
 
     @Transactional
