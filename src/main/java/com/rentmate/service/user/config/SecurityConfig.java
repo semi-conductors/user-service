@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/users/auth/register",
                                 "/users/auth/password-reset/token",
                                 "/users/auth/password-reset/confirm",
+                                "/users/{id}/email",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
@@ -59,7 +60,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOriginPattern("*"); // ✅ allow all origins
+        configuration.addAllowedOriginPattern("*");
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

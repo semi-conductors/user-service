@@ -24,6 +24,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -494,5 +495,10 @@ public class UserController {
             throw new AccessDeniedException("You aren't authorized to access this resource");
 
         return ResponseEntity.ok(userService.getUserProfile(id));
+    }
+
+    @GetMapping("/{id}/email")
+    public ResponseEntity<?> getEmail(@PathVariable Long id){
+        return ResponseEntity.ok(Map.of("email",userService.getUserProfile(id).email()));
     }
 }
