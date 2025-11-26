@@ -37,9 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@Service
-@RequiredArgsConstructor
-@Slf4j
+@Service @RequiredArgsConstructor @Slf4j
 public class ReportServiceImpl implements ReportService {
     private final UserReportRepository reportRepository;
     private final UserRepository userRepository;
@@ -54,22 +52,15 @@ public class ReportServiceImpl implements ReportService {
         boolean isSystemReport = request.getReportType() == CreateReportRequest.ReportType.FAKE_USER
                 || request.getReportType() == CreateReportRequest.ReportType.FRAUD;
 
-        User reporter = userRepository.findById(isSystemReport ? UserService.getAuthenticatedUserId() : request.getReporterUserId())
-                .orElseThrow(() -> new NotFoundException("Reporter user not found"));
+        validateDetailsLength(request);
+        RentalResponse rental = validateRental(request);
 
-        User reportedUser = userRepository.findById(request.getReportedUserId())
+        User reporter = userRepository.findById(isSystemReport ? UserService.getAuthenticatedUserId() : rental.getOwnerId())
+                .orElseThrow(() -> new NotFoundException("Reporter user not found"));
+        User reportedUser = userRepository.findById(rental.getRenterId())
                 .orElseThrow(() -> new NotFoundException("Reported user not found"));
 
-        validateDetailsLength(request);
-
-        try{
-            validateCrossServiceReferences(request);
-        } catch (Exception e) {
-            throw new BadRequestException("validation failed: " + e.getLocalizedMessage());
-        }
-
         UserReport savedReport = reportRepository.save(ReportMapper.toUserReport(request, reporter, reportedUser));
-
         updateReportedUserStatus(reportedUser, request.getReportType());
 
         eventPublisher.publishReportCreatedEvent(EventMapper.toReportCreatedEvent(savedReport));
@@ -195,7 +186,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override @Transactional
-    public void resolveReport(Long id, UserPrincipal loggedInUser, boolean dismissed) {
+    public void resolveReport(Long id, String message, UserPrincipal loggedInUser, boolean dismissed) {
         UserReport report = reportRepository.findById(id).orElseThrow(() -> new NotFoundException("Report not found"));
 
         if(report.getStatus() == ReportStatus.RESOLVED || report.getStatus() == ReportStatus.DISMISSED)
@@ -219,6 +210,7 @@ public class ReportServiceImpl implements ReportService {
         report.setStatus(dismissed ? ReportStatus.DISMISSED : ReportStatus.RESOLVED);
         report.setResolvedAt(LocalDateTime.now());
         report.setResolvedBy(resolver);
+        report.setResolutionNotes(message);
         report.setClaimedAt(null);
         report.setClaimedBy(null);
         report.setLockExpiresAt(null);
@@ -253,28 +245,25 @@ public class ReportServiceImpl implements ReportService {
         }
     }
 
-    private void validateCrossServiceReferences(CreateReportRequest request) {
-        // TODO: Validate delivery_id exists in Delivery Service
-        if (request.getRelatedDeliveryId() != null) {
-            log.debug("TODO: Validate delivery ID {} exists in Delivery Service",
-                    request.getRelatedDeliveryId());
-            // DeliveryServiceClient.validateDeliveryExists(request.getRelatedDeliveryId());
+    private RentalResponse validateRental(CreateReportRequest request) {
+        RentalResponse rental ;
+        try{
+             rental = rentalService.getRentalById(request.getRelatedRentalId());
+        } catch (Exception e) {
+            log.error("Error while validating delivery ID", e);
+            throw e;
         }
 
-        RentalResponse rental = rentalService.getRentalById(request.getRelatedRentalId());
-
-        if(request.getReportType() == CreateReportRequest.ReportType.DAMAGE &&
-                !Objects.equals(rental.getOwnerId(), request.getReporterUserId()))
-            throw new BadRequestException("the reporter must be item owner.");
-
-        if(!Objects.equals(request.getReportedUserId(), rental.getRenterId()))
-            throw new BadRequestException("the reported user must be the renter.");
+        if(rental == null)
+            throw new NotFoundException("No rental with the id = " + request.getRelatedRentalId());
 
 
         // For OVERDUE reports, validate rental is actually overdue
         if (request.getReportType() == CreateReportRequest.ReportType.OVERDUE
             && rental.getEndDate().isBefore(LocalDateTime.now()))
             throw new BadRequestException("Rental is not overdue.");
+
+        return rental;
     }
 
     @Transactional

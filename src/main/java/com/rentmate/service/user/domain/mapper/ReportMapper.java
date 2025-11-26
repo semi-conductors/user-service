@@ -31,6 +31,7 @@ public class ReportMapper {
                 .damagePercentage(report.getDamagePercentage())
                 .submittedAt(report.getSubmittedAt())
                 .resolvedAt(report.getResolvedAt())
+                .resolutionNotes(report.getResolutionNotes())
                 .build();
     }
 
@@ -49,6 +50,7 @@ public class ReportMapper {
                 .damagePercentage(report.getDamagePercentage())
                 .submittedAt(report.getSubmittedAt())
                 .resolvedAt(report.getResolvedAt())
+                .resolutionNotes(report.getResolutionNotes())
                 .build();
     }
 
@@ -99,6 +101,8 @@ public class ReportMapper {
                 .reporter(reporter)
                 .reported(reported)
                 .claimedAt(report.getClaimedAt())
-                .lockExpiresAt(report.getLockExpiresAt()).build();
+                .lockExpiresAt(report.getLockExpiresAt())
+                .resolutionNotes(report.getResolutionNotes())
+                .build();
     }
 }

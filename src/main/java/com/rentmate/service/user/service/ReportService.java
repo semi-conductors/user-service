@@ -19,6 +19,6 @@ public interface ReportService {
     ReportDetailsResponse getReport(Long id);
     void claimReport(Long id, UserPrincipal loggedInUser);
     void releaseReport(Long id, UserPrincipal loggedInUser);
-    void resolveReport(Long id, UserPrincipal loggedInUser, boolean dismissed);
+    void resolveReport(Long id,String message, UserPrincipal loggedInUser, boolean dismissed);
     LocalDateTime refreshLock(Long reportId, UserPrincipal loggedInUser);
 }

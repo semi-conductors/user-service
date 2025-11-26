@@ -34,6 +34,7 @@ public class ReportDetailsResponse {
 
     private LocalDateTime lockExpiresAt;
 
+    private String resolutionNotes;
     private UserProfileResponse reporter;
     private UserProfileResponse reported;
 }

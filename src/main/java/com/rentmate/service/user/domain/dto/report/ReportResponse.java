@@ -40,4 +40,6 @@ public class ReportResponse {
     private LocalDateTime submittedAt;
 
     private LocalDateTime resolvedAt;
+
+    private String resolutionNotes;
 }

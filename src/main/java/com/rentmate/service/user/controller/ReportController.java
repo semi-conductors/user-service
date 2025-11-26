@@ -1,9 +1,6 @@
 package com.rentmate.service.user.controller;
 
-import com.rentmate.service.user.domain.dto.report.ReportDetailsResponse;
-import com.rentmate.service.user.domain.dto.report.ReportListResponse;
-import com.rentmate.service.user.domain.dto.report.ReportResponse;
-import com.rentmate.service.user.domain.dto.report.CreateReportRequest;
+import com.rentmate.service.user.domain.dto.report.*;
 import com.rentmate.service.user.domain.enumuration.ReportStatus;
 import com.rentmate.service.user.domain.enumuration.ReportType;
 import com.rentmate.service.user.service.ReportService;
@@ -18,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -342,8 +340,8 @@ public class ReportController {
             """,
             security = @SecurityRequirement(name = "bearerAuth")
     )
-    public ResponseEntity<Void> resolve(@PathVariable("id") Long reportId){
-        reportService.resolveReport(reportId, UserService.getAuthenticatedUser(), false);
+    public ResponseEntity<Void> resolve(@PathVariable("id") Long reportId, @RequestBody(required = false) ResolutionNotes resolutionNotes) {
+        reportService.resolveReport(reportId, resolutionNotes.getMessage(), UserService.getAuthenticatedUser(), false);
         return ResponseEntity.noContent().build();
     }
 
@@ -387,8 +385,8 @@ public class ReportController {
             """,
             security = @SecurityRequirement(name = "bearerAuth")
     )
-    public ResponseEntity<Void> dismissReport(@PathVariable("id") Long reportId){
-        reportService.resolveReport(reportId, UserService.getAuthenticatedUser(), true);
+    public ResponseEntity<Void> dismissReport(@PathVariable("id") Long reportId, @RequestBody(required = false) ResolutionNotes resolutionNotes){
+        reportService.resolveReport(reportId, resolutionNotes.getMessage(), UserService.getAuthenticatedUser(), true);
         return ResponseEntity.noContent().build();
     }
 }
